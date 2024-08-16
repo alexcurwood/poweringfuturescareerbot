@@ -1,21 +1,28 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+
 export default function Home() {
   const [clickThrough, setClickThrough] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [displayData, setDisplayData] = useState(false);
   const [data, setData] = useState("");
+  const [answers, setAnswers] = useState([]);
 
   function handleClickThrough() {
     setClickThrough(true);
   }
   async function handleClick() {
-    const response = await fetch("http://localhost:3000/api/answers");
+    console.log(answers);
+    const response = await fetch(
+      "http://localhost:3000/api/answers",
+      { method: "POST" },
+      { body: JSON.stringify(answers) }
+    );
     const data = await response.json();
     setData(data);
     setDisplayData(true);
   }
+
   const questionsAndAnswers = [
     {
       question: "What are your favourite subjects at school?",
@@ -74,10 +81,15 @@ export default function Home() {
     },
   ];
 
-  function nextQuestion() {
+  function handleAnswer(questionToPush, answerToPush) {
     if (currentQuestion < questionsAndAnswers.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
     }
+    setAnswers((prev) => [
+      ...prev,
+      { question: questionToPush, answer: answerToPush },
+    ]);
+    console.log(answers);
   }
 
   return (
@@ -95,7 +107,12 @@ export default function Home() {
                 <div
                   key={index}
                   className="p-1 border-black border-2"
-                  onClick={nextQuestion}
+                  onClick={() =>
+                    handleAnswer(
+                      questionsAndAnswers[currentQuestion].question,
+                      answer
+                    )
+                  }
                 >
                   {answer}
                 </div>
@@ -119,7 +136,7 @@ export default function Home() {
 
       {currentQuestion == questionsAndAnswers.length - 1 ? (
         <>
-          <button onClick={handleClick}>Click Me</button>
+          <button onClick={handleClick}>Submit Answers</button>
           {displayData && <>{data}</>}
         </>
       ) : (
