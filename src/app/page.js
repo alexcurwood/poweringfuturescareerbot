@@ -4,8 +4,17 @@ import Image from "next/image";
 export default function Home() {
   const [clickThrough, setClickThrough] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [displayData, setDisplayData] = useState(false);
+  const [data, setData] = useState("");
+
   function handleClickThrough() {
     setClickThrough(true);
+  }
+  async function handleClick() {
+    const response = await fetch("http://localhost:3000/api/answers");
+    const data = await response.json();
+    setData(data);
+    setDisplayData(true);
   }
   const questionsAndAnswers = [
     {
@@ -64,7 +73,13 @@ export default function Home() {
       ],
     },
   ];
-  function handleFetch() {}
+
+  function nextQuestion() {
+    if (currentQuestion < questionsAndAnswers.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
+    }
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
       {/* HEADER */}
@@ -77,7 +92,11 @@ export default function Home() {
           <div className="bg-gray-200 p-2">
             {questionsAndAnswers[currentQuestion].answers.map(
               (answer, index) => (
-                <div key={index} className="p-1 border-black border-2">
+                <div
+                  key={index}
+                  className="p-1 border-black border-2"
+                  onClick={nextQuestion}
+                >
                   {answer}
                 </div>
               )
@@ -96,6 +115,15 @@ export default function Home() {
             Try our online quiz.
           </div>
         </section>
+      )}
+
+      {currentQuestion == questionsAndAnswers.length - 1 ? (
+        <>
+          <button onClick={handleClick}>Click Me</button>
+          {displayData && <>{data}</>}
+        </>
+      ) : (
+        <></>
       )}
     </main>
   );
