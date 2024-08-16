@@ -13,11 +13,13 @@ export default function Home() {
   }
   async function handleClick() {
     console.log(answers);
-    const response = await fetch(
-      "http://localhost:3000/api/answers",
-      { method: "POST" },
-      { body: JSON.stringify(answers) }
-    );
+    const response = await fetch("http://localhost:3000/api/answers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ answers }),
+    });
     const data = await response.json();
     setData(data);
     setDisplayData(true);
